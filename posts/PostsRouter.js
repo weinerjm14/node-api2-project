@@ -79,7 +79,7 @@ router.post('/:id/comments', (req, res) => {
     const { id } = req.params;
     const comment = { ...req.body, post_id: id };
     const post = datab.findById(req.params.id);
-    if (!id) {
+    if (!post) {
       res
         .status(404)
         .json({ message: 'The post with the specified ID does not exist.' });
@@ -88,12 +88,48 @@ router.post('/:id/comments', (req, res) => {
         .status(400)
         .json({ errorMessage: 'Please provide text for the comment.' });
     } else {
-      datab.insertComment(req.body).then(res.status(201).json(comment));
+      datab.insertComment(comment).then(res.status(201).json(comment));
     }
   } catch {
     res.status(500).json({
       error: 'There was an error while saving the comment to the database',
     });
+  }
+});
+
+// Delete endpoints
+
+router.delete('/:id', (req, res) => {
+  try {
+    const { id } = req.params.id;
+    if ((posts.id = { id })) {
+      datab.remove({ id });
+      res.status(200).json({ message: 'post deleted' });
+    } else {
+      res.status(404).json({ message: "that post doesn't exist" });
+    }
+  } catch {
+    res.status(500).json({
+      error: 'the post could not be removed',
+    });
+  }
+});
+
+// put endpoints
+router.put('/:id', (req, res) => {
+  const mypost = datab.findById(req.params.id);
+
+  try {
+    if (!mypost) {
+      res.status(404).json({ message: 'that post does not exsist' });
+    } else if (!req.body.title || !req.body.contents) {
+      res.status(400).json({ message: 'Please provide title and content' });
+    } else {
+      datab.update(req.params.id, { ...req.body });
+      res.status(200).json(req.body);
+    }
+  } catch {
+    res.status(500).json({ message: 'error updating post' });
   }
 });
 
